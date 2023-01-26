@@ -33,4 +33,5 @@ INNER JOIN public.taxi_zone AS tz_do
 	ON td."DOLocationID" = tz_do."LocationID"
 WHERE tz_pu."Zone" = 'Astoria'
 GROUP BY tz_do."Zone"
-ORDER BY max_tip DESC;
+ORDER BY max_tip DESC
+LIMIT 1;
