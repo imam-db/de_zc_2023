@@ -9,10 +9,71 @@ Using the `etl_web_to_gcs.py` flow that loads taxi data into GCS as a guide, cre
 
 How many rows does that dataset have?
 
-* 447,770
+* 447,770 **
 * 766,792
 * 299,234
 * 822,132
+
+**Explanation:**
+
+After encountering some errors due to the absence of folders with color names, I updated the code.
+
+```python
+@task()
+def write_local(df: pd.DataFrame, color: str, dataset_file: str) -> Path:
+    """Write DataFrame out locally as parquet file"""
+    if not Path(f"data/{color}/").exists():
+        Path(f"data/{color}/").mkdir()
+    path = Path(f"data/{color}/{dataset_file}.parquet")
+    df.to_parquet(path, compression="gzip")
+    return path
+```
+
+Additionally, I encountered errors because columns named `tpep_pickup_datetime` and `tpep_dropoff_datetime` were missing, so I updated the code accordingly.
+
+```python
+@task(log_prints=True)
+def clean(df: pd.DataFrame) -> pd.DataFrame:
+    """Fix dtype issues"""
+    if "tpep_pickup_datetie" in df.columns:
+        df["tpep_pickup_datetime"] = pd.to_datetime(df["tpep_pickup_datetime"])
+        df["tpep_dropoff_datetime"] = pd.to_datetime(df["tpep_dropoff_datetime"])
+    else:
+        df["lpep_pickup_datetime"] = pd.to_datetime(df["lpep_pickup_datetime"])
+        df["lpep_dropoff_datetime"] = pd.to_datetime(df["lpep_dropoff_datetime"])
+    print(df.head(2))
+    print(f"columns: {df.dtypes}")
+    print(f"rows: {len(df)}")
+    return df
+```
+
+The final unexpected value I received was fixed by adding a parameter to the function `etc_web_to_gcs` as it was not being utilized.
+
+```python
+@flow()
+def etl_web_to_gcs(color: str, year: int, month: int) -> None:
+    """The main ETL function"""
+    # color = "yellow"
+    # year = 2021
+    # month = 1
+    dataset_file = f"{color}_tripdata_{year}-{month:02}"
+    dataset_url = f"https://github.com/DataTalksClub/nyc-tlc-data/releases/download/{color}/{dataset_file}.csv.gz"
+
+    df = fetch(dataset_url)
+    df_clean = clean(df)
+    path = write_local(df_clean, color, dataset_file)
+    write_gcs(path)
+
+
+if __name__ == "__main__":
+    etl_web_to_gcs(color="green", year=2020, month=1)
+```
+
+After the code has run successfully, you can verify the number of rows in the logs.
+
+![](./images/prefect_flow_runs_success.PNG)
+
+![](./images/prefect_logs.PNG)
 
 
 ## Question 2. Scheduling with Cron
@@ -21,10 +82,16 @@ Cron is a common scheduling specification for workflows.
 
 Using the flow in `etl_web_to_gcs.py`, create a deployment to run on the first of every month at 5am UTC. What’s the cron schedule for that?
 
-- `0 5 1 * *`
+- `0 5 1 * *` **
 - `0 0 5 1 *`
 - `5 * 1 0 *`
 - `* * 5 1 0`
+
+**Explanation:**
+
+
+After creating the deployment, we set the schedule from the UI to run using a cron job as requested. The task is to run at 5:00 AM on the first day of each month in UTC.
+![](./images/prefect_cron_job.PNG)
 
 
 ## Question 3. Loading data to BigQuery 
@@ -41,10 +108,64 @@ Create a deployment for this flow to run in a local subprocess with local flow c
 
 Make sure you have the parquet data files for Yellow taxi data for Feb. 2019 and March 2019 loaded in GCS. Run your deployment to append this data to your BiqQuery table. How many rows did your flow code process?
 
-- 14,851,920
+- 14,851,920 **
 - 12,282,990
 - 27,235,753
 - 11,338,483
+
+**Explanation**
+
+I have already updated the `extract_from_gcs` function to accept a color as a string, a year as an integer, and a list of months(it can now accept multiple numbers of months). Additionally, I have edited the mechanism to retrieve the path, so it will return multiple paths (list of paths) equal to the number of months included in the parameters.
+
+```python
+@task(log_prints=True, retries=3)
+def extract_from_gcs(color: str, year: int, months: list[int]) -> Path:
+    """Download trip data from GCS"""
+    local_path = "../data/"
+    gcs_block = GcsBucket.load("gcs-bucket")
+    paths = []
+    for month in months:
+        gcs_path = f"data/{color}/{color}_tripdata_{year}-{month:02}.parquet"
+        gcs_block.get_directory(from_path=gcs_path, local_path=local_path)
+        paths.append(Path(f"{local_path}/{gcs_path}"))
+    return paths
+```
+
+For the `write_bq` function, I updated the project_id to my project_id in GCP and changed the destination table in BigQuery.
+
+```python
+@task()
+def write_bq(df: pd.DataFrame) -> None:
+    """Write DataFrame to BiqQuery"""
+
+    gcp_credentials_block = GcpCredentials.load("gcp-creds")
+
+    df.to_gbq(
+        destination_table="dezoomcamp_tripdata.taxi_data",
+        project_id="de-learning-2023",
+        credentials=gcp_credentials_block.get_credentials_from_service_account(),
+        chunksize=500_000,
+        if_exists="append",
+    )
+```
+
+The function `etl_gcs_to_bq` retrieves trip data from a GCS bucket by calling the `extract_from_gcs` function, and obtains a list of Path objects. Using a list comprehension, the function applies the transform function to each Path object, resulting in a list of DataFrames. The list of DataFrames is then combined into a single large DataFrame, `combined_df`, using `pd.concat`. The number of rows in the `combined_df` is printed, and the `combined_df` is written to BigQuery by calling the write_bq function.
+
+```python
+@flow(log_prints=True)
+def etl_gcs_to_bq(color: str, year: int, months: list[int]):
+    """Main ETL flow to load data into Big Query"""
+
+    paths = extract_from_gcs(color, year, months)
+    df = [transform(path) for path in paths]
+    combined_df = pd.concat(df, axis=0, ignore_index=True)
+    print(f"Total rows transformed into big query : {len(combined_df)}")
+    write_bq(combined_df)
+```
+
+The total number of rows processed by the flow code is 14,851,920
+
+![](./images/prefect_logs_gcs_to_bq_count.PNG)
 
 
 
