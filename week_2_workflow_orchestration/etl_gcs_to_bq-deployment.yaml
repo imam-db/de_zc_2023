@@ -1,0 +1,62 @@
+###
+### A complete description of a Prefect Deployment for flow 'etl-gcs-to-bq'
+###
+name: param_etl_gcs_to_bq
+description: Main ETL flow to load data into Big Query
+version: 4b27288e701d47a143b42fe5a8b7beb0
+# The work queue that will handle this deployment's runs
+work_queue_name: default
+tags: []
+parameters:
+  color: yellow
+  year: 2019
+  months:
+  - 2
+  - 3
+schedule: null
+infra_overrides: {}
+
+###
+### DO NOT EDIT BELOW THIS LINE
+###
+flow_name: etl-gcs-to-bq
+manifest_path: null
+infrastructure:
+  type: process
+  env: {}
+  labels: {}
+  name: null
+  command: null
+  stream_output: true
+  working_dir: null
+  _block_document_id: 16f06f53-3589-485e-87bd-72e1772f4ed0
+  _block_document_name: anonymous-3cda57c2-a6d7-4d4a-88b1-8551bfbfa4bb
+  _is_anonymous: true
+  block_type_slug: process
+  _block_type_slug: process
+storage: null
+path: /home/belajarde2023/week2/prefect-zoomcamp
+entrypoint: flows/02_gcp/etl_gcs_to_bq.py:etl_gcs_to_bq
+parameter_openapi_schema:
+  title: Parameters
+  type: object
+  properties:
+    color:
+      title: color
+      position: 0
+      type: string
+    year:
+      title: year
+      position: 1
+      type: integer
+    months:
+      title: months
+      position: 2
+      type: array
+      items:
+        type: integer
+  required:
+  - color
+  - year
+  - months
+  definitions: null
