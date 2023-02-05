@@ -91,6 +91,7 @@ Using the flow in `etl_web_to_gcs.py`, create a deployment to run on the first o
 
 
 After creating the deployment, we set the schedule from the UI to run using a cron job as requested. The task is to run at 5:00 AM on the first day of each month in UTC.
+
 ![](./images/prefect_cron_job.PNG)
 
 
