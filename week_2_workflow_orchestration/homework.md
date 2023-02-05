@@ -182,8 +182,12 @@ How many rows were processed by the script?
 
 - 88,019
 - 192,297
-- 88,605
+- 88,605 **
 - 190,225
+
+**Explanation**
+
+![](./images/prefect_logs_web_to_gcs_no4.PNG)
 
 
 
@@ -213,7 +217,19 @@ How many rows were processed by the script?
 - `125,268`
 - `377,922`
 - `728,390`
-- `514,392`
+- `514,392` **
+
+**Explanation**:
+
+After creating a Prefect Cloud account at app.prefect.cloud, set up a workspace and generate API keys to access it from your local machine. Before that, create another profile locally to easily separate it from other configurations. You can check the list of configurations here. After creating a new profile, configure it to set the `PREFECT_API_KEY` and `PREFECT_API_URL` and use them to log in.
+
+Upon successful login via the CLI, recreate the blocks (which can also be done via the UI) and deployments as in the local deployment before. I also created an email block that contains a list of emails to be used later to send notifications about the flow. In Prefect Cloud, there is a menu named Automations that is not present in local / open source version, and you can use it to set up notifications to be sent via email after a flow run is successful or completed.
+
+The flow processed a total of 514,392 rows of data.
+
+Here is an image of the email that was sent after the flow was completed.
+
+![](./images/prefect_email_notif.PNG)
 
 
 ## Question 6. Secrets
@@ -223,17 +239,8 @@ Prefect Secret blocks provide secure, encrypted storage in the database and obfu
 - 5
 - 6
 - 8
-- 10
+- 10 **
 
+**Explanation**:
 
-## Submitting the solutions
-
-* Form for submitting: https://forms.gle/PY8mBEGXJ1RvmTM97
-* You can submit your homework multiple times. In this case, only the last submission will be used. 
-
-Deadline: 6 February (Monday), 22:00 CET
-
-
-## Solution
-
-We will publish the solution here
+![](./images/prefect_secrets.PNG)
