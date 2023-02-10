@@ -238,8 +238,8 @@ Prefect Secret blocks provide secure, encrypted storage in the database and obfu
 
 - 5
 - 6
-- 8
-- 10 **
+- 8 **
+- 10 
 
 **Explanation**:
 
