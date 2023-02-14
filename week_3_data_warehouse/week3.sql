@@ -24,7 +24,6 @@ WHERE PUlocationID IS NULL AND DOlocationID IS NULL;
 ```
 
 
-
 -- No. 5
 
 ```sql
