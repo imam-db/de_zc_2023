@@ -10,3 +10,7 @@
 ## Week 2:Workflow Orchestration
 
 - [Homework](./week_2_workflow_orchestration/homework.md)
+
+## Week 3:Data Warehouse
+
+- [Homework](./week_3_data_warehouse/homework.md)
