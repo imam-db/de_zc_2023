@@ -21,7 +21,7 @@ You should find the views and models for querying in your DWH.
 
 - 61635151
 - 61635418
-- 61666551
+- 61666551 **
 - 41856543
 
 
@@ -31,7 +31,7 @@ You should find the views and models for querying in your DWH.
 
 You will need to complete "Visualising the data" videos, either using data studio or metabase. 
 
-- 89.9/10.1
+- 89.9/10.1 **
 - 94/6
 - 76.3/23.7
 - 99.1/0.9
@@ -45,7 +45,7 @@ You will need to complete "Visualising the data" videos, either using data studi
 Create a staging model for the fhv data for 2019 and do not add a deduplication step. Run it via the CLI without limits (is_test_run: false).
 Filter records with pickup time in year 2019.
 
-- 4208599
+- 4208599 **
 - 44384899
 - 57084899
 - 42084899
@@ -60,7 +60,7 @@ Similar to what we've done in fact_trips, keep only records with known pickup an
 Run it via the CLI without limits (is_test_run: false) and filter records with pickup time in year 2019.
 
 - 22676490
-- 36678853
+- 36678853 **
 - 22676253
 - 29565253
 
@@ -71,5 +71,5 @@ Create a dashboard with some tiles that you find interesting to explore the data
 
 - March
 - April
-- January
+- January **
 - December
