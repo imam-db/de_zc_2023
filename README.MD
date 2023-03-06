@@ -14,3 +14,11 @@
 ## Week 3:Data Warehouse
 
 - [Homework](./week_3_data_warehouse/homework.md)
+
+## Week 4:Analytics Engineering
+
+- [Homework](./week_4_analytics_engineering/homework.md)
+
+## Week 5:Batch Processing
+
+- [Homework](./week_5_batch_processing/homework.md)
